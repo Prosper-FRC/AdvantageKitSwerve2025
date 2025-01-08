@@ -52,13 +52,13 @@ public class SwerveModuleHardware {
 
   private StatusSignal<Angle> absolutePosistionSignal;
 
-  // Control //
+  // Voltage + Posistion Control //
   private VoltageOut azimuthVoltageControl;
   private VoltageOut driveVoltageControl;
   private PositionVoltage azimuthVoltagePosistion;
   private VelocityVoltage driveVelocityControl;
 
-  // AutLog these values //
+  // AutoLog these values //
   @AutoLog
   public static class SwerveModuleInputs {
     public boolean driveConnected = true;
@@ -72,6 +72,7 @@ public class SwerveModuleHardware {
 
     public boolean azimuthConnected = true;
     public Rotation2d azimuthPosistion = new Rotation2d();
+    // This value is derived from the cancoder //
     public Rotation2d azimuthAbsolutePosistion = new Rotation2d();
     public double azimuthAppliedVolts = 0.0;
     public double azimuthMotorVolts = 0.0;
@@ -86,15 +87,15 @@ public class SwerveModuleHardware {
     angleOffset = modConstants.offset();
 
     drive = new TalonFX(modConstants.drivePort(), Constants.kCanbusName);
+    
+    // Drive motor factory reset +  configs //
     TalonFXConfiguration driveConfig = new TalonFXConfiguration();
-    // Ensure factory reset //
     drive.getConfigurator().apply(driveConfig);
-
     driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     driveConfig.CurrentLimits.StatorCurrentLimit = 80;
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     driveConfig.CurrentLimits.SupplyCurrentLimit = 60;
-    driveConfig.MotorOutput.Inverted =InvertedValue.Clockwise_Positive; 
+    driveConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; 
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     driveConfig.Voltage.PeakForwardVoltage = 12.0;
     driveConfig.Voltage.PeakReverseVoltage = -12.0;
@@ -102,9 +103,9 @@ public class SwerveModuleHardware {
     driveConfig.Feedback.SensorToMechanismRatio = DriveConstants.driveGearRatio / DriveConstants.circumfrenceMeters;
     driveConfig.Slot0.kP = DriveConstants.driveControllerConfig.kP();
     driveConfig.Slot0.kD = DriveConstants.driveControllerConfig.kD();
-    // Apply new configs //
     drive.getConfigurator().apply(driveConfig);
   
+    // Drive status signals //
     driveVelocity = drive.getVelocity();
     drivePosistion = drive.getPosition();
     driveVoltage = drive.getMotorVoltage();
@@ -112,19 +113,18 @@ public class SwerveModuleHardware {
     driveSupplyCurrent = drive.getSupplyCurrent();
     driveTempC = drive.getDeviceTemp();
 
+    // Cancoder factory reset + status signals //
     cancoder = new CANcoder(modConstants.cancoderPort(), Constants.kCanbusName);
     absolutePosistionSignal = cancoder.getAbsolutePosition();
     CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
     cancoder.getConfigurator().apply(encoderConfig);
-
     BaseStatusSignal.setUpdateFrequencyForAll(50.0, absolutePosistionSignal);
     cancoder.optimizeBusUtilization();
 
+    // Azimuth Motor factory reset + configs //
     azimuth = new TalonFX(modConstants.azimuthPort(), Constants.kCanbusName);
     TalonFXConfiguration azimuthConfig = new TalonFXConfiguration();
-    // Ensure factory reset //
     azimuth.getConfigurator().apply(azimuthConfig);
-
     azimuthConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     azimuthConfig.CurrentLimits.StatorCurrentLimit = 40;
     azimuthConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -140,9 +140,9 @@ public class SwerveModuleHardware {
     azimuthConfig.Slot0.kP = DriveConstants.azimuthControllerConfig.kP();
     azimuthConfig.Slot0.kD = DriveConstants.azimuthControllerConfig.kD();
     azimuthConfig.ClosedLoopGeneral.ContinuousWrap = true;
-    // Apply new configs //
     azimuth.getConfigurator().apply(azimuthConfig);
 
+    // Azimuth status signals //
     azimuthPosistion = azimuth.getPosition();
     azimuthVoltage = azimuth.getMotorVoltage();
     azimuthStatorCurrent = azimuth.getStatorCurrent();
@@ -192,6 +192,7 @@ public class SwerveModuleHardware {
 
   }
 
+
   public String getName(){
     return name;
   }
@@ -206,6 +207,7 @@ public class SwerveModuleHardware {
 
   public void setAzimuthConstants(double kP, double kD, double kS){
     Slot0Configs configs = new Slot0Configs();
+    // Only gains neccessary for the azimuths //
     configs.kP = kP;
     configs.kD = kD;
     configs.kS = kS;
@@ -222,6 +224,7 @@ public class SwerveModuleHardware {
 
   public void setDriveConstants(double kP, double kD, double kS, double kV, double kA){
     Slot0Configs configs = new Slot0Configs();
+    // Only gains neccessary for the drive //
     configs.kP = kP;
     configs.kD = kD;
     configs.kS = kS;

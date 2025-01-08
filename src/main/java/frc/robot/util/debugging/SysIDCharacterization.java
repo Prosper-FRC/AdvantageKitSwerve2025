@@ -18,7 +18,6 @@ import java.util.function.Consumer;
 public class SysIDCharacterization {
 
     public static Command runDriveSysIDTests(Consumer<Double> voltageSetter, Subsystem subsystem) {
-        //TODO: Check this
         SysIdRoutine sysIdRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(
                 Units.Volts.of(1).per(Units.Seconds.of(1).baseUnit()),

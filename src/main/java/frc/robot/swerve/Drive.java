@@ -209,10 +209,16 @@ public class Drive extends SubsystemBase{
         driveState = state;
     }
 
+    // Changes the drive state which is logged in AS //
     public Command setDriveStateCommand(DriveState state){
         return Commands.runOnce(() -> setDriveEnum(state), this);
     }
 
+    /**
+     * ADD THIS 
+     * @param state state to pass in
+     * @return command
+     */
     public Command setDriveStateCommandContinued(DriveState state){
         return new FunctionalCommand(
             () -> setDriveEnum(state), 
@@ -222,6 +228,10 @@ public class Drive extends SubsystemBase{
             this);
     }
 
+    /**
+     * Runs characterization to find the gains of the drive motor 
+     * @return the command that will be runned
+     */
     public Command characterizeDriveMotors() {
         return setDriveStateCommand(DriveState.SYS_ID).andThen(
             SysIDCharacterization.runDriveSysIDTests( (voltage) -> {
@@ -269,15 +279,18 @@ public class Drive extends SubsystemBase{
                 boolean isModuleSpeedOptimized = isSpeedOptimized(preOptimizedSetpointState, setpointStates[i]);
                 Logger.recordOutput("Drive/Swerve/Feedforward/"+i+"/optimalInvert", isModuleSpeedOptimized);
 
+                optimizedSetpointStates[i].cosineScale(modules[i].getCurrentState().angle);
+
                 optimizedSetpointStates[i] = modules[i].setSwerveStatewithAccel(
                     setpointStates[i], 
+                    // Pathplanner does not handle inverting //
                     (isModuleSpeedOptimized) ? -1 * previousSetpoint.feedforwards().accelerationsMPSSq()[i] : previousSetpoint.feedforwards().accelerationsMPSSq()[i]);
 
-                optimizedSetpointStates[i].cosineScale(modules[i].getCurrentState().angle);
                 }
              
             
             else {
+                // This all works and is fully tested //
                 setpointStates[i] = new SwerveModuleState(
                     previousSetpoint.moduleStates()[i].speedMetersPerSecond,
                     Math.abs(previousSetpoint.moduleStates()[i].speedMetersPerSecond / DriveConstants.maxLinearSpped) < 0.01 ?
@@ -297,6 +310,9 @@ public class Drive extends SubsystemBase{
         return state.speedMetersPerSecond != optimizedState.speedMetersPerSecond;
     }
 
+    // The discretize function is used to break apart the fact that the values is not constant (its fed every 0.02) seconds //
+    // This funciton is used to stop the chassis speeds from considered continuous and rather little slivers //
+    // Looks at EN for L3 to learn more about it //
     private ChassisSpeeds discretize(ChassisSpeeds speeds) {
         double dt = 0.02;
         var desiredDeltaPose = new Pose2d(

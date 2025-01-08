@@ -1,9 +1,7 @@
 package frc.robot.swerve;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class DriveConstants {
 
@@ -33,6 +31,7 @@ public class DriveConstants {
     
     public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(ModuleTranslations);
 
+    // TODO: Needs to be tuned //
     public static final double kDriftRate = 1;
 
     public static final SwerveModuleHardwareConfig frontLeft = new SwerveModuleHardwareConfig(
@@ -65,6 +64,7 @@ public class DriveConstants {
 
     public static final boolean invertAzimuths = true;
 
+    // Make sure to change this gains after each time of tuning //
     public static final SwerveModuleControllerConfig azimuthControllerConfig = new SwerveModuleControllerConfig(15, 0, 0, 0, 0, 0, 0);
     public static final SwerveModuleControllerConfig driveControllerConfig = new SwerveModuleControllerConfig(0, 0, 0, 0.16396, 2.3327, 0, 0);
 
@@ -75,7 +75,5 @@ public class DriveConstants {
     public record SwerveModuleControllerConfig(double kP, double kI, double kD, double kS, double kV, double kA, double kG) {}
 
     public record ModuleLimits(double linearSpeed, double linearAcel, double angle) {}
-  
-    public record SwerveSetpoint(ChassisSpeeds chassisSpeeds, SwerveModuleState[] moduleStates) {}
     
 }

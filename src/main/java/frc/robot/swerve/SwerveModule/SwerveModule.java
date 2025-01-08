@@ -24,16 +24,21 @@ public class SwerveModule extends SubsystemBase {
     public static final LoggedTunableNumber azimuthD = new LoggedTunableNumber("Module/Azimuth/kD", DriveConstants.azimuthControllerConfig.kD());
     public static final LoggedTunableNumber azimuthS = new LoggedTunableNumber("Module/Azimuth/kS", DriveConstants.azimuthControllerConfig.kS());
 
+    // Different set points for the azimuth and drive motors //
     private Double velocitySetpointMPS = null;
     private Rotation2d azimuthSetpointAngle = null;
     private Double accelerationSetpointMPSS = null;
 
+    // Current state and current posistion are updated periodically //
     private SwerveModuleState currentState = new SwerveModuleState();
     private SwerveModulePosition currentPosition = new SwerveModulePosition();
 
+    // IO layer along with the autologged inputs that are processed in this file //
     private SwerveModuleHardware io;
     private SwerveModuleInputsAutoLogged inputs = new SwerveModuleInputsAutoLogged();
 
+    // This drive ff was added for when acceleration + velocity needs to be set //
+    // This allows for the calculation of the feedforward value between the velocity and acceleration //
     private SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(0, 0, 0);
 
     private String nameKey;
@@ -76,6 +81,7 @@ public class SwerveModule extends SubsystemBase {
             io.setAzimuthConstants(azimuthP.get(), azimuthD.get(), azimuthS.get());
         }, azimuthP, azimuthD, azimuthS);
 
+        // Constantly updating the driveff if the gains are changed //
         LoggedTunableNumber.ifChanged(hashCode(), () -> {
             driveFeedforward = new SimpleMotorFeedforward(driveS.get(), driveV.get(), driveA.get());
         }, driveS, driveV, driveA);
@@ -90,9 +96,9 @@ public class SwerveModule extends SubsystemBase {
     }
 
     /**
-     * Run characterization for feedforward gains, for the swerve
+     * Run characterization for drive motor gains. Dont use kA from Sys ID
      * Bind this to a button and let it run
-     * @param inputVolts should be set to 4 or 6 volts
+     * @param inputVolts volts fed into the motor
      */
     public void runLinearCharacterization(double inputVolts) {
         setAzimuthPosistion(Rotation2d.fromRotations(0));
@@ -101,8 +107,8 @@ public class SwerveModule extends SubsystemBase {
     }
 
     /**
-     * Set the desired velocity/posistion respectivly to the drive and azimuth
-     * @param state desired state
+     * Set the desired velocity/posistion respectivly to the drive and azimuth with no acceleration
+     * @param state desired state (posistion + velocity)
      * @return set state
      */
     public SwerveModuleState setSwerveState(SwerveModuleState state){
@@ -112,6 +118,12 @@ public class SwerveModule extends SubsystemBase {
         return new SwerveModuleState(velocitySetpointMPS, azimuthSetpointAngle);
     }
 
+    /**
+     * Set the desired velocity/posistion respectivly to the drive and azimuth with acceleration
+     * @param state desired state (posistion + velocity)
+     * @param accel desired acceleration (m/s^2)
+     * @return set state
+     */
     public SwerveModuleState setSwerveStatewithAccel(SwerveModuleState state, double accel){
         setDriveAcceleration(accelerationSetpointMPSS);
         setDriveVelocity(state.speedMetersPerSecond);
@@ -119,6 +131,11 @@ public class SwerveModule extends SubsystemBase {
         return new SwerveModuleState(velocitySetpointMPS, azimuthSetpointAngle);
     }
 
+    /**
+     * Set the desired posistion of the azimuth
+     * @param state desired state (posistion + velocity), velocity will not be used
+     * @return set state
+     */
     public SwerveModuleState setAzimuthPosistion(SwerveModuleState state){
         setAzimuthPosistion(state.angle);
         setDriveVelocity(null);
@@ -152,7 +169,7 @@ public class SwerveModule extends SubsystemBase {
 
     /**
      * Set acceleration demand to the drive motor
-     * @param accelDemand (units : m/s/s)
+     * @param accelDemand (units : m/s^2)
      */
     public void setDriveAcceleration(Double accelDemand){
         accelerationSetpointMPSS = accelDemand;
@@ -168,7 +185,7 @@ public class SwerveModule extends SubsystemBase {
 
     /**
      * Set posistion to the azimuth motor
-     * @param volts (units: rotations)
+     * @param positionDemand (units: rotations)
      */
     public void setAzimuthPosistion(Rotation2d posistionDemand){
         azimuthSetpointAngle = posistionDemand;
@@ -182,6 +199,10 @@ public class SwerveModule extends SubsystemBase {
         io.setAzimuthVolts(volts);
     }
 
+    /**
+     * Get the autologged inputs
+     * @return inputs
+     */
     public SwerveModuleInputsAutoLogged getInputs(){
         return inputs;
     }
