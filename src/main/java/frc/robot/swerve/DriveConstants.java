@@ -65,14 +65,14 @@ public class DriveConstants {
 
     public static final boolean invertAzimuths = true;
 
-    public static final SwerveModuleControllerConfig azimuthControllerConfig = new SwerveModuleControllerConfig(1, 0, 0, 0, 0, 0, 0);
-    public static final SwerveModuleControllerConfig driveControllerConfig = new SwerveModuleControllerConfig(0, 0, 0, 0, 0, 0, 0);
+    public static final SwerveModuleControllerConfig azimuthControllerConfig = new SwerveModuleControllerConfig(15, 0, 0, 0, 0, 0, 0);
+    public static final SwerveModuleControllerConfig driveControllerConfig = new SwerveModuleControllerConfig(0, 0, 0, 0.16396, 2.3327, 0, 0);
 
     public static final ModuleLimits MODULE_LIMITS = new ModuleLimits(maxLinearSpped, mazLinearAcceleration, Math.toRadians(660.0));
 
     public record SwerveModuleHardwareConfig(String name, int drivePort, int azimuthPort, int cancoderPort, Rotation2d offset) {}
 
-    public record SwerveModuleControllerConfig(int kP, int kI, int kD, int kS, int kV, int kA, int kG) {}
+    public record SwerveModuleControllerConfig(double kP, double kI, double kD, double kS, double kV, double kA, double kG) {}
 
     public record ModuleLimits(double linearSpeed, double linearAcel, double angle) {}
   

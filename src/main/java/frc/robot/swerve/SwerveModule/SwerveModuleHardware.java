@@ -95,7 +95,7 @@ public class SwerveModuleHardware {
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     driveConfig.CurrentLimits.SupplyCurrentLimit = 60;
     driveConfig.MotorOutput.Inverted =InvertedValue.Clockwise_Positive; 
-    driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     driveConfig.Voltage.PeakForwardVoltage = 12.0;
     driveConfig.Voltage.PeakReverseVoltage = -12.0;
     driveConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
@@ -176,6 +176,7 @@ public class SwerveModuleHardware {
     inputs.driveTempC = new double[] {driveTempC.getValueAsDouble()};
 
     inputs.azimuthConnected = BaseStatusSignal.refreshAll(
+      absolutePosistionSignal,
       azimuthPosistion,
       azimuthVoltage,
       azimuthStatorCurrent,

@@ -17,14 +17,14 @@ public class TeleopController {
 
     private boolean fieldRelative = true;
 
-    public static final LoggedTunableNumber linearDeadband = new LoggedTunableNumber("Drive/Teleop/LinearDeadband", 1);
-    public static final LoggedTunableNumber omegaDeadband = new LoggedTunableNumber("Drive/Teleop/RotationalDeadband", 0.075);
+    public static final LoggedTunableNumber linearDeadband = new LoggedTunableNumber("Drive/Teleop/LinearDeadband", 0.1);
+    public static final LoggedTunableNumber omegaDeadband = new LoggedTunableNumber("Drive/Teleop/RotationalDeadband", 0.1);
 
-    public static final LoggedTunableNumber linearScalar = new LoggedTunableNumber("Drive/Teleop/LinearScalar", 2);
+    public static final LoggedTunableNumber linearScalar = new LoggedTunableNumber("Drive/Teleop/LinearScalar", 1);
     public static final LoggedTunableNumber omegaScalar = new LoggedTunableNumber("Drive/Teleop/RotationScalar", 0.5);
 
     public static final LoggedTunableNumber rotationInputsExponent = new LoggedTunableNumber("Drive/Teleop/RotationInputExponent", 1.0);
-    public static final LoggedTunableNumber linearInputsExponent = new LoggedTunableNumber("Drive/Teleop/LinearInputExponent", 0.1);
+    public static final LoggedTunableNumber linearInputsExponent = new LoggedTunableNumber("Drive/Teleop/LinearInputExponent", 1);
 
 
 

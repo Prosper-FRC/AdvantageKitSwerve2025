@@ -223,23 +223,17 @@ public class Drive extends SubsystemBase{
     }
 
     public Command characterizeDriveMotors() {
-        //TODO: help me
-        // return setDriveStateCommand(DriveState.SYS_ID).andThen(
-        //     SysIDCharacterization.runDriveSysIDTests( (voltage) -> {
-        //         for (var module : modules) module.runLinearCharacterization(voltage);
-        // }, this));
-
-        return
+        return setDriveStateCommand(DriveState.SYS_ID).andThen(
             SysIDCharacterization.runDriveSysIDTests( (voltage) -> {
                 for (var module : modules) module.runLinearCharacterization(voltage);
-        }, this);
+        }, this));
     }
 
     public void setChassisSpeeds(ChassisSpeeds speeds){
         desiredSpeeds = speeds;
     }
 
-    public void setVoltage(Double voltage){
+    public void setVoltage(double voltage){
         for(SwerveModule mod : modules){
             mod.setDriveVolts(voltage);
         }
@@ -320,7 +314,6 @@ public class Drive extends SubsystemBase{
 
     public void resetGyro() {
         robotRotation = Constants.kAlliance == Alliance.Blue ? Rotation2d.fromDegrees(0.0) : Rotation2d.fromDegrees(180.0);
-        gyro.setYaw(robotRotation.getDegrees());
         setPose(new Pose2d(getEstimatedPose().getTranslation(), robotRotation));
     }
 

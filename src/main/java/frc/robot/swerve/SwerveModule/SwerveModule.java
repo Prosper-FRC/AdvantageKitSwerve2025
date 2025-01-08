@@ -95,7 +95,7 @@ public class SwerveModule extends SubsystemBase {
      * @param inputVolts should be set to 4 or 6 volts
      */
     public void runLinearCharacterization(double inputVolts) {
-        setAzimuthPosistion(new Rotation2d());
+        setAzimuthPosistion(Rotation2d.fromRotations(0));
         setDriveVelocity(null);
         setDriveVolts(inputVolts);
     }

@@ -35,7 +35,7 @@ public class GyroHardware {
 
     public void updateInputs(GyroInputs inputs){
         inputs.gyroConnected = BaseStatusSignal.refreshAll(yaw).isOK();
-        inputs.yaw = new Rotation2d(yaw.getValueAsDouble());
+        inputs.yaw = Rotation2d.fromDegrees(yaw.getValueAsDouble());
     }
 
     public void setYaw(double yaw){
